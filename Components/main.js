@@ -4,16 +4,23 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {fetchUser} from '../Redux/actions/index'
+import {fetchUser, fetchUserPosts, clearData} from '../Redux/actions/index'
 import FeedScreen from './main/diary'
-import addScreen from './main/write'
+
 import profileScreen from './main/profile'
+import { event } from 'react-native-reanimated';
+
+const Empty = () => {
+    return(null);
+}
 
 const Tab = createMaterialBottomTabNavigator();
 
 export class main extends Component {
     componentDidMount(){
+        this.props.clearData();
         this.props.fetchUser();
+        this.props.fetchUserPosts();
     }
     render() {
         return (
@@ -25,7 +32,13 @@ export class main extends Component {
                     ),
                 }}
                 />
-                <Tab.Screen name="Write" component={addScreen} 
+                <Tab.Screen name="Write" component={Empty} 
+                listeners={({ navigation }) => ({
+                    tabPress: event => {
+                        event.preventDefault();
+                        navigation.navigate("write")
+                    }
+                })}
                 options={{
                     tabBarIcon: ({color, size}) => (
                         <MaterialCommunityIcons name="marker" color={color} size={25}/>
@@ -46,7 +59,7 @@ export class main extends Component {
 const mapStateToProps = (store) => ({
     currentUser: store.userState.currentUser
 })
-const mapDispatchProps = (dispatch) => bindActionCreators({fetchUser}, dispatch)
+const mapDispatchProps = (dispatch) => bindActionCreators({fetchUser, fetchUserPosts, clearData}, dispatch)
 
 
 export default connect(mapStateToProps, mapDispatchProps)(main)

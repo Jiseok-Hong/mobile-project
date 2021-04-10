@@ -14,6 +14,9 @@ import { Provider } from 'react-redux'
 import {createStore, applyMiddleware} from 'redux'
 import rootReducer from './Redux/reducers'
 import thunk from 'redux-thunk'
+import savescreen from "./Components/main/save"
+import addScreen from './Components/main/write'
+
 const store  = createStore(rootReducer, applyMiddleware(thunk));
 
 const firebaseConfig = {
@@ -80,7 +83,9 @@ export class App extends Component {
       <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName = "Main">
-            <Stack.Screen name="Main" component={Mainscreen} options={{headerShown: false}}/>   
+            <Stack.Screen name="Main" component={Mainscreen} options={{headerShown: false}}/> 
+            <Stack.Screen name="write" component={addScreen} options={{headerShown: false}}/>  
+            <Stack.Screen name="save" component={savescreen} options={{headerShown: false}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>
