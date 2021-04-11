@@ -9,13 +9,15 @@ import Login from './Components/Auth/Login';
 import Mainscreen from './Components/main'
 import { LogBox } from 'react-native';
 import * as firebase from 'firebase'
-LogBox.ignoreLogs(['Setting a timer for a long period of time'])
+// LogBox.ignoreLogs(['Setting a timer for a long period of time'])
 import { Provider } from 'react-redux'
 import {createStore, applyMiddleware} from 'redux'
 import rootReducer from './Redux/reducers'
 import thunk from 'redux-thunk'
 import savescreen from "./Components/main/save"
 import addScreen from './Components/main/write'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
 
 const store  = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -81,13 +83,16 @@ export class App extends Component {
     }
     return(
       <Provider store={store}>
+        <SafeAreaProvider>
+
         <NavigationContainer>
-          <Stack.Navigator initialRouteName = "Main">
-            <Stack.Screen name="Main" component={Mainscreen} options={{headerShown: false}}/> 
-            <Stack.Screen name="write" component={addScreen} options={{headerShown: false}}/>  
-            <Stack.Screen name="save" component={savescreen} options={{headerShown: false}}/>
+          <Stack.Navigator initialRouteName = "Main" >
+            <Stack.Screen name="Main" component={Mainscreen} options={{headerShown: true }}/> 
+            <Stack.Screen name="write" component={addScreen} options={{headerShown: true, title: 'Upload your picture'}}/>  
+            <Stack.Screen name="save" component={savescreen} options={{headerShown: true, title: 'Write your thought'}}/>
           </Stack.Navigator>
         </NavigationContainer>
+        </SafeAreaProvider>
       </Provider>
       
     );

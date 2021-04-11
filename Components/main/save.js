@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { View, TextInput, Image, Text,TouchableOpacity, StyleSheet } from 'react-native'
+import { View, TextInput, Image, Text,TouchableOpacity, StyleSheet, KeyboardAvoidingView,TouchableWithoutFeedback, Button, Keyboard } from 'react-native'
 
 import firebase from 'firebase'
 import { NavigationContainer } from '@react-navigation/native'
 require("firebase/firestore")
 require("firebase/firebase-storage")
+
 
 
 export default function Save(props) {
@@ -13,7 +14,6 @@ export default function Save(props) {
     const uploadImage = async () => {
         const uri = props.route.params.image;
         const childPath = `post/${firebase.auth().currentUser.uid}/${Math.random().toString(36)}`;
-        console.log(childPath)
 
         const response = await fetch(uri);
         const blob = await response.blob();
@@ -57,36 +57,45 @@ export default function Save(props) {
             }))
     }
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly', backgroundColor: '#b0e0e6' }}>
-            <Image source={{ uri: props.route.params.image }} />
-            <TextInput style={styles.inputs}
-                placeholder="Write your thought..."
-                onChangeText={(caption) => setCaption(caption)}
-            />
-
-            <TouchableOpacity style={styles.button} title="Save" onPress={() => uploadImage()}>
-                <Text style={{color: "#fff",  fontSize: 20}}>Upload</Text>
-            </TouchableOpacity>
-        </View>
+        <KeyboardAvoidingView style={{flex: 1}}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', backgroundColor: '#b0e0e6' }}>
+                    {/* <Image source={{ uri: props.route.params.image }} /> */}
+                    <Text style={{color: "#fff",  fontSize: 23, paddingVertical: 30, paddingTop:50}}>✏ In 200 words</Text>
+                    <TextInput style={styles.inputs}
+                        placeholder="Write your thought..."
+                        multiline={true}
+                        onChangeText={(caption) => setCaption(caption)}
+                        />
+                    <TouchableOpacity style={styles.button} title="Save" onPress={() => uploadImage()}>
+                        <Text style={{color: "#fff",  fontSize: 20}}>Upload</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
 const styles = StyleSheet.create({
     inputs:{
+        marginVertical: 20,
         backgroundColor: '#fff',
-        width: '80%',
-        height: 50,
+        width: '75%',
+        height: '40%',
         borderRadius: 20,
         fontSize: 15,
         paddingHorizontal: 10,
+        paddingVertical: 20,
+        lineHeight: 23,
+        textAlignVertical: 'top'
     },
     button: {
-      
-      alignItems: "center",
-      justifyContent: 'center',
-      backgroundColor: "#5078C8",
-      padding: 15,
-      width: 250,
-      borderRadius: 20,
+        marginVertical: 30,
+        alignItems: "center",
+        justifyContent: 'center',
+        backgroundColor: "#5078C8",
+        padding: 15,
+        width: 250,
+        borderRadius: 20,
     },
   });
