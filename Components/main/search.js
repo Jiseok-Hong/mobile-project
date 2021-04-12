@@ -19,6 +19,7 @@ export default function search(props) {
                     return { id, ...data }
                 }); 
                 setUsers(searchResult);
+                console.log("user search list:", searchResult);
             })
     }
     return (

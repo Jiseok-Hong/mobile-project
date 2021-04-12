@@ -2,6 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View,TouchableOpacity} from 'react-native';
 
+console.log("Signup Page");
+
 export default function Signup({ navigation }){
     return(
         <View style={{flex:1, justifyContent: 'center', alignItems:'center', backgroundColor: '#b0e0e6'}}>

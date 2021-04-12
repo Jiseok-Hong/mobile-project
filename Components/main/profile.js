@@ -40,6 +40,7 @@ function profile(props) {
                         return {id, ...data}
                     })
                     setUserPosts(posts);
+                    console.log("userPosts:", userPosts);
                 })
         }
         

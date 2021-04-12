@@ -37,13 +37,13 @@ export class main extends Component {
                 }}
 
                 />
-                <Tab.Screen name="Search" component={SearchScreen} navigation = {this.props.navigation}
+                {/* <Tab.Screen name="Search" component={SearchScreen} navigation = {this.props.navigation}
                 options={{
                     tabBarIcon: ({color, size}) => (
                         <MaterialCommunityIcons name="magnify" color={color} size={25}/>
                     ),
                 }}
-                />
+                /> */}
                 <Tab.Screen name="Write" component={Empty} 
                 listeners={({ navigation }) => ({
                     tabPress: event => {
