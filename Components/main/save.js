@@ -7,7 +7,6 @@ require("firebase/firestore")
 require("firebase/firebase-storage")
 
 
-
 export default function Save(props) {
     const [caption, setCaption] = useState("")
 
@@ -42,6 +41,21 @@ export default function Save(props) {
     }
 
     const savePostData = (downloadURL) => {
+
+        // const increment = firebase.firestore.FieldValue.increment(1);
+
+
+        // const currentNumPost = firebase.firestore()
+        // .collection('users')
+        // .doc(firebase.auth().currentUser.uid)
+        // .get({numPost});
+
+        // console.log(currentNumPost);
+
+        // firebase.firestore()
+        // .collection('users')
+        // .doc(firebase.auth().currentUser.uid)
+        // .update({numPost:currentNumPost+1});
 
         firebase.firestore()
             .collection('posts')

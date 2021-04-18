@@ -83,7 +83,8 @@ export class Register extends Component{
             .doc(firebase.auth().currentUser.uid)
             .set({
                 name,
-                email
+                email,
+                numPost:0
             })
             
         })

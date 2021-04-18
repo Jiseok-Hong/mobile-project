@@ -13,7 +13,9 @@ function profile(props) {
 
         if(props.route.params.uid === firebase.auth().currentUser.uid){
             setUser(currentUser)
-            setUserPosts(posts)            
+            setUserPosts(posts)      
+            // console.log(userPosts);
+
         } else {
             firebase.firestore()
                 .collection("users")
@@ -40,12 +42,11 @@ function profile(props) {
                         return {id, ...data}
                     })
                     setUserPosts(posts);
-                    console.log("userPosts:", userPosts);
+        
                 })
         }
         
     }, [props.route.params.uid])
-
 
     const onLogout = () => {
         firebase.auth().signOut();
@@ -54,8 +55,9 @@ function profile(props) {
     if (user === null) {
         return <View />
     }
-
+    // {console.log(userPosts)}
     return (
+       
         <View style={styles.container}>
             <View style={styles.containerInfo}>
                 <Text style={{fontSize: 32}}>Hello, 
