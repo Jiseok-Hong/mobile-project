@@ -77,7 +77,7 @@ function profile(props) {
     console.log(userPosts);
 
     // {console.log(userPosts)}
-    return (
+    return (       
         <View style={styles.container}>
             <View style={styles.containerInfo}>
                 <Text style={{fontSize: 32}}>Hello, 
@@ -91,14 +91,7 @@ function profile(props) {
                     horizontal={false}
                     data={userPosts}
                     renderItem={({ item }) => (
-                        // <View
-                        //     style={styles.containerImage}>
-                        //     <Image
-                        //         style={styles.image}
-                        //         source={{ uri: item.downloadURL }}
-                        //     />
-                        // </View> 
-                        // <View>
+                      
                             <Card style={styles.card}>
                             {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(u.creation)} /> */}
                                 <Card.Cover style={styles.image} source={{ uri: item.downloadURL }} />
@@ -111,10 +104,6 @@ function profile(props) {
                                         </Text>
                                     </View>
                                 </Card.Content>
-                                {/* <Card.Actions>
-                                    <Button>Like</Button>
-                                    <Button>Dislike</Button>
-                                </Card.Actions> */}
                             </Card>
                         // {/* </View> */}
                             
@@ -152,7 +141,9 @@ const styles = StyleSheet.create({
         padding: '3%',
         margin: 5,
         borderRadius: 20,
-        marginBottom: 170
+        // marginBottom: 170,
+        height: '80%'
+
     },
     containerImage: {
         // flex: 1/2,
@@ -213,7 +204,7 @@ const styles = StyleSheet.create({
         width: 250,
         borderRadius: 20,
       },
-      cardText: {
+    cardText: {
         fontSize: 14,
         fontWeight: "400"
     },

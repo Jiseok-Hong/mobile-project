@@ -292,15 +292,9 @@ export default function diary(props) {
         return formatedTime
 
     }
-
     // console.log("-----------------------------------\nLength\n-----------------------------------\n")
-    // // // {console.log("&&&&fetch users:",defaultFeedUsers)}
-
     // console.log("defaultFeedPosts",defaultFeedPosts.length)
     // console.log("defaultFeedUser:",defaultFeedUsers.length)
-    // // {console.log("****",isFeed)}
-    
-    
     // setTimeout(()=>{console.log("&",defaultFeedPosts,"&")}, 2000);
 
     return (
@@ -333,28 +327,32 @@ export default function diary(props) {
                         )}
                         />
                 <View style={{display: isFeed ? 'flex' : 'none'}}>
-                    <ScrollView style={{display: isFeed ? 'flex' : 'none', marginBottom: 50}}>
-                            {
-                                defaultFeedPosts.map((u, i) => {
-                                    return (
-                                        <Card key={i} style={styles.card}>
-                                        {/* <Card.Title title="Card Title" subtitle="Card Subtitle" /> */}
-                                        <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(u.creation)} />
-                                        <Card.Content>
-                                            {/* <Title>{defaultFeedUsers[i].name}</Title> */}
-                                            <Paragraph style={styles.cardText}>{u.caption}</Paragraph>
+                    <View style={styles.FlatList} >
+                        <FlatList
+                            numColumns={1}
+                            horizontal={false}
+                            data={defaultFeedPosts}
+                            renderItem={({ item, index}) => (
+                                    <Card key={index} style={styles.card}>
+                                        <Card.Title title={defaultFeedUsers[index].name}>{defaultFeedUsers[index].name}</Card.Title>
+                                        <Card.Cover style={styles.image} source={{ uri: item.downloadURL }} />
+                                        <Card.Content style={styles.cardContent}>
+                                            {/* <Card.Title title={item.name}/> */}
+                                            <Paragraph style={styles.cardText}>{item.caption}</Paragraph>
+                                            {/* <Text>{"\n"}</Text> */}
+                                            <View style={{borderRadius:30, backgroundColor:'#b2dad1', paddingHorizontal:"4%",paddingVertical:"1%", }}>
+                                                <Text>
+                                                    <Text style={styles.cardDate}>{timestampToTime(item.creation)}</Text>
+                                                </Text>
+                                            </View>
                                         </Card.Content>
-                                        <Card.Cover style={styles.image} source={{ uri: u.downloadURL }} />
-                                        <Card.Actions>
-                                            <Button>Like</Button>
-                                            <Button>Dislike</Button>
-                                        </Card.Actions>
                                     </Card>
-                                    );
-                                })
-                            }
-                    </ScrollView>
+                                // {/* </View> */}
+                            )}/>
+                    
+                    </View>
                 </View>
+
 
             
                 <ScrollView style={styles.containerGallery} style={{display: isFeed ? 'none' : 'flex'}}>
@@ -388,14 +386,48 @@ const styles = StyleSheet.create({
     card: {
         margin: 10,
         borderRadius: 5,
+        // justifyContent: 'center',
+        justifyContent: 'space-between',
+        // alignItems: 'center',
+        // alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+
+    },
+    cardContent: {
+        // transform: ([{ scale: '0.9' }]),     
+        marginLeft: 5,
+        marginRight: 5,
+        flex: 1,
+        flexWrap:'wrap',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        flexDirection:'column',
+    },
+    cardDate:{
+        margin:'auto',
+        padding:'auto',
+        color:"#FFF", 
     },
     image: {
+        // flex: 1,
+        // height:'1%',
+        // aspectRatio: 1/1,
+        // marginTop: 10,
+        // marginLeft: "auto",
+        // // marginLeft: "auto",
+        // marginRight: "auto",
+        // transform: ([{ scale: '0.9' }]),      
+
     },
-    cardText: {
-        fontSize: 14,
-        fontWeight: "400"
-    },
-    
+
     searchitem: {
         // flex: 1,
         padding: '3%',
@@ -406,6 +438,7 @@ const styles = StyleSheet.create({
     },
     FlatList: {
         // margin: 20,
+        marginBottom: 100,
         // borderWidth: 0.1,
         // borderColor: 'red',
         // justifyContent: 'center',
@@ -422,6 +455,16 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         flex: 1/2,
+    },
+    cardDate:{
+        margin:'auto',
+        padding:'auto',
+        color:"#FFF", 
+    },
+    cardText: {
+        fontSize: 14,
+        fontWeight: "400",
+        marginBottom: "3%",
     },
     buttonContainer: {
         alignItems: "center",
