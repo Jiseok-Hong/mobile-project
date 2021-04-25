@@ -78,28 +78,6 @@ function profile(props) {
 
     // {console.log(userPosts)}
     return (
-        // <ScrollView style={{display: isFeed ? 'flex' : 'none', marginBottom: 50}}>
-        //         {
-        //             defaultFeedPosts.map((u, i) => {
-        //                 return (
-            //                 <Card key={i} style={styles.card}>
-            //                     {/* <Card.Title title="Card Title" subtitle="Card Subtitle" /> */}
-            //                     <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(u.creation)} />
-            //                     <Card.Content>
-            //                         {/* <Title>{defaultFeedUsers[i].name}</Title> */}
-            //                         <Paragraph style={styles.cardText}>{u.caption}</Paragraph>
-            //                     </Card.Content>
-            //                     <Card.Cover style={styles.image} source={{ uri: u.downloadURL }} />
-            //                     <Card.Actions>
-            //                         <Button>Like</Button>
-            //                         <Button>Dislike</Button>
-            //                     </Card.Actions>
-            // //                 </Card>
-        //                 );
-        //             })
-        //         }
-        // </ScrollView>
-       
         <View style={styles.container}>
             <View style={styles.containerInfo}>
                 <Text style={{fontSize: 32}}>Hello, 
