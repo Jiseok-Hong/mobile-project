@@ -1,12 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import { StyleSheet, Text, View, FlatList,TouchableOpacity, Image, KeyboardAvoidingView,TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { Card, ListItem, Button, Icon } from 'react-native-elements'
-import { Searchbar } from 'react-native-paper';
+import { Keyboard,StyleSheet, Text, View, FlatList,TouchableOpacity, Image, KeyboardAvoidingView,TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { dCard, ListItem, dButton, Icon } from 'react-native-elements'
+import { Searchbar, Avatar, Button, Card, Title, Paragraph  } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-// import Timeline from 'react-native-timeline-flatlist'
-// import Timeline from 'react-native-timeline-flatlist'
 
-// import Timeline from "react-native-beautiful-timeline";
+
 // import Timeline from 'react-native-timeline-feed';
 // import { Preset } from 'react-native-timeline-feed/lib/Types';
 
@@ -26,10 +24,120 @@ export default function diary(props) {
     const [user, setUser] = useState(null)
     const [uid, setuid] = useState(null) 
     const [isFeed, setIsFeed] = useState(true)
+    const [isSearching, setIsSearching] = useState(false)
 
 
+    async function fetchPosts() {
+        console.log("fetchPosts")
+        response = await firebase.firestore().collection('posts').doc(userid)
+        .collection("userPosts").orderBy("creation", "asc").limit(1).get().docs[0].data();
+
+        return response;
+    }
+
+    async function fetchUserPosts() {
+        console.log("fetchUserPosts")
+
+        const feedPosts = await Promise.all(defaultFeedUsers.map((u, i) => {
+            const posts = firebase.firestore()
+                   .collection("posts")
+                   .doc(u.id)
+                   .collection("userPosts")
+                   .orderBy("creation", "desc")
+                   .limit(1)
+                   .get()
+                   .then((querySnapshot) => {
+                       const queryDocumentSnapshot = querySnapshot.docs[0];
+                       // console.log("querySnapshot",queryDocumentSnapshot.id);
+                       // console.log("querySnapshot",queryDocumentSnapshot.data());
+                       // let post = {
+                       //     caption: queryDocumentSnapshot.data().caption,
+                       //     creation: queryDocumentSnapshot.data().creation,
+                       //     image: queryDocumentSnapshot.data().downloadURL
+                       // }
+                       // setDefaultFeedPosts({ id, ...data })
+                       return { id, ...queryDocumentSnapshot.data() };
+                   });
+            return posts;
+        }));
+        console.log(feedPosts);
+        setDefaultFeedPosts(feedPosts);
+        // return feedPosts;
+    }
+
+    async function fetchUserData() {
+        const result = await firebase.firestore()
+        .collection('users')
+        .where('numPost', '>', 0)
+        // .doc()
+        .get()
+        .then((snapshot) => {
+            // snapshot.forEach(function(doc) {
+                // doc.data() is never undefined for query doc snapshots
+                // console.log(doc.id, " => ", doc.data());
+            // });
+            let searchResult = snapshot.docs.map(doc => {
+                const data = doc.data();
+                const id = doc.id;
+                return { id, ...data }
+            }); 
+            // let searchResult = snapshot.docs.map(doc => { doc.id, ...doc.data()} )
+            // setIsFeed(true);
+            setDefaultFeedUsers(searchResult);
+
+            // return searchResult;
+            return
+        });
+    }
+
+    // fetch users information who has more than 1 posts, then store their id&data in defaultFeedUsers
     useEffect(() => {
-        const result = firebase.firestore()
+        console.log("UseEffect[]")
+        console.log('\n===================================================\nstart\n===================================================\n')
+        try {
+            const userSearchResult = fetchUserData();
+        } catch (e) {
+            console.error(e);
+        }
+        // setDefaultFeedUsers(userSearchResult);
+    },[])
+
+    async function fetchUploadedUsers() {
+        console.log("fetchUploadedUsers")
+
+        const uploadedUsers = await Promise.all(defaultFeedUsers.map((u, i) => {
+            const posts = firebase.firestore()
+                   .collection("posts")
+                   .doc(u.id)
+                   .collection("userPosts")
+                   .orderBy("creation", "desc")
+                   .limit(1)
+                   .get()
+                   .then((querySnapshot) => {
+                       const queryDocumentSnapshot = querySnapshot.docs[0];
+                       // console.log("querySnapshot",queryDocumentSnapshot.id);
+                       // console.log("querySnapshot",queryDocumentSnapshot.data());
+                       // let post = {
+                       //     caption: queryDocumentSnapshot.data().caption,
+                       //     creation: queryDocumentSnapshot.data().creation,
+                       //     image: queryDocumentSnapshot.data().downloadURL
+                       // }
+                       // setDefaultFeedPosts({ id, ...data })
+                       return { id, ...queryDocumentSnapshot.data() };
+                   });
+            return posts;
+        }));
+        console.log(feedPosts);
+        setDefaultFeedPosts(feedPosts);
+        // return feedPosts;
+    }
+
+    // fetch users information who has more than 1 posts, then store their id&data in defaultFeedUsers
+    useEffect(() => {
+        console.log();
+
+        async function fetchUserData() {
+            const result = await firebase.firestore()
             .collection('users')
             .where('numPost', '>', 0)
             // .doc()
@@ -45,78 +153,50 @@ export default function diary(props) {
                     return { id, ...data }
                 }); 
                 // let searchResult = snapshot.docs.map(doc => { doc.id, ...doc.data()} )
-                setIsFeed(true);
+                // setIsFeed(true);
                 setDefaultFeedUsers(searchResult);
+
                 return searchResult;
-            })
-            // .then((searchResult) => {
-            //     let posts = searchResult.map(u => {
-            //         console.log("uid:",u.id);
-            //         const post = firebase.firestore()
-            //             .collection("posts")
-            //             .doc(u.id)
-            //             .collection("userPosts")
-            //             .orderBy("creation", "desc")
-            //             .limit(1)
-            //             .get()
-            //             .then((querySnapshot) => {
-            //                 const queryDocumentSnapshot = querySnapshot.docs[0];
-            //                 let post = {
-            //                     caption: queryDocumentSnapshot.data().caption,
-            //                     creation: queryDocumentSnapshot.data().creation,
-            //                     image: queryDocumentSnapshot.data().downloadURL
-            //                 }
-            //                 return post
-            //             })
-            //             // console.log("$$$$$",post,"$$$$$");
-            //             // console.log("&&&&&&&:",postResult);
-            //         return post;
-            //     });
-            //     setDefaultFeedPosts(posts)
-            //     return posts;
-            // })
+            });
+        }
+        console.log('\n===================================================\nstart\n===================================================\n')
+        try {
+            const userSearchResult = fetchUserData();
+        } catch (e) {
+            console.error(e);
+        }
+        // setDefaultFeedUsers(userSearchResult);
     },[])
 
-    useEffect(() => {
-        const returnpost = defaultFeedUsers.map((u, i) => {
-            console.log("uid:",u.id);
-            const posts = firebase.firestore()
-                .collection("posts")
-                .doc(u.id)
-                .collection("userPosts")
-                .orderBy("creation", "desc")
-                .limit(1)
-                .get()
-                .then( async (querySnapshot) => {
-                    const queryDocumentSnapshot = querySnapshot.docs[0];
-                    // console.log("querySnapshot",queryDocumentSnapshot.id);
-                    // console.log("querySnapshot",queryDocumentSnapshot.data());
-                    // let post = {
-                    //     caption: queryDocumentSnapshot.data().caption,
-                    //     creation: queryDocumentSnapshot.data().creation,
-                    //     image: queryDocumentSnapshot.data().downloadURL
-                    // }
-                    // setDefaultFeedPosts({ id, ...data })
-
-                    return  { id, ...queryDocumentSnapshot.data() }
-                })
-                // console.log("$$$$$",posts,"$$$$$");
-                // console.log("&&&&&&&:",postResult);
-                // console.log("^^^^^^^^^^^^^^^^^^^^");
-                // console.log(posts);
-                return posts;
-            });
-        // console.log(returnpost);
-        setDefaultFeedPosts(returnpost)
-        
+    useEffect( () => {
+        console.log("-----------------------------------\ndefaultFeedUsers changed\n-----------------------------------\n")
+        try {
+            const feedPosts = fetchUserPosts();
+            console.log(feedPosts);
+        } catch (e) {
+            console.error(e);
+        }
     },[defaultFeedUsers])
+
+    useEffect(() => {
+        console.log("-----------------------------------\ndefaultFeedPosts changed\n-----------------------------------\n")
+        console.log("defaultFeedPosts:",defaultFeedPosts)
+        console.log("defaultFeedUser:",defaultFeedUsers)
+
+    },[defaultFeedPosts])
     
 
     // when uid is changed
     useEffect(() => {
+        console.log("-----------------------------------\nuseEffect - [uid]\n-----------------------------------\n")
+        // console.log("UseEffect[uid]")
+        setIsSearching('false')
+        setIsFeed('false')
+        console.log("isFeed:",isFeed)
+        // console.log("useEffect - [uid]")
         const {currentUser, posts, allUsers} = props;
         if(uid != null){
-            console.log("original uid:",uid);
+            // console.log("original uid:",uid);
             firebase.firestore()
                 .collection("users")
                 .doc(uid)
@@ -128,8 +208,6 @@ export default function diary(props) {
                         console.log('does not exist')
                     }
                 })
-
-            // console.log("uid 2:",uid);
 
             firebase.firestore()
                 .collection("posts")
@@ -144,9 +222,6 @@ export default function diary(props) {
                         return {id, ...data}
                     })
                     setUserPosts(posts);
-                    // console.log("conse");
-                    // console.log(posts);
-                    // console.log(user);
                 })
         } else {
             console.log("null for uid");
@@ -155,7 +230,6 @@ export default function diary(props) {
     }, [uid])
     
     const fetchUsers = (username) => {
-        // setIsFeed(false);
 
         firebase.firestore()
             .collection('users')
@@ -170,6 +244,7 @@ export default function diary(props) {
                 setSearchQuery(searchResult);
             })
     }
+    
     const fetchUserLastPost = async (uid) => {
         // setIsFeed(false);
 
@@ -191,81 +266,97 @@ export default function diary(props) {
     }
 
     async function getValues(userid) {
-        let fetcehd = await firebase.firestore().collection('posts').doc(userid)
+        console.log('getValues()')
+        let fetched = await firebase.firestore().collection('posts').doc(userid)
                 .collection("userPosts").orderBy("creation", "asc").limit(1).get();
 
-        for(const doc of fetcehd.docs){
-            console.log(doc.id, '=>', doc.data());
-            return doc.data().downloadURL;
-            }
-        // console.log('id::',fetcehd.id);
-        // if (fetcehd.docs.exists){ console.log(fetcehd.docs.doc); return fetcehd.docs.data();}
-        throw new Error("No such document");
-        return fetcehd.docs.doc
+        // console.log("-----------------------------------\ngetValues-fetched\n-----------------------------------\n")
+        // console.log(fetched.docs[0].id, '=>', fetched.docs[0].data());
+        return fetched.docs[0].id
     }
 
-    const rse=getValues('r7B6G6YHtBMaQAd1BH585mfjN5l1');
-    console.log(rse);
+    const timestampToTime = (timestampObj) => {
+        console.log('timestampToTime()')
+        console.log("isFeed:",isFeed)
+        // Date javaDate = firebaseTimestampObject.toDate();
+        let second = timestampObj.seconds;
+        // let timestamp = '1452488445471';
+        let newDate = new Date(second * 1000)
+        let Hours = newDate.getHours()
+        let Month = newDate.getMonth()
+        let Day = newDate.getDate()
+        let Minutes = newDate.getMinutes()
+        const HourComplete = Month + '/' + Day + ' ' + Hours + ':' + Minutes
+        let formatedTime = HourComplete
+        // console.log(formatedTime)
+        return formatedTime
 
-    // {console.log("&&&&fetch users:",defaultFeedUsers)}
-    // {console.log("\n\n",defaultFeedPosts)}
-    // {console.log("****",isFeed)}
+    }
+
+    // console.log("-----------------------------------\nLength\n-----------------------------------\n")
+    // // // {console.log("&&&&fetch users:",defaultFeedUsers)}
+
+    // console.log("defaultFeedPosts",defaultFeedPosts.length)
+    // console.log("defaultFeedUser:",defaultFeedUsers.length)
+    // // {console.log("****",isFeed)}
     
     
     // setTimeout(()=>{console.log("&",defaultFeedPosts,"&")}, 2000);
 
     return (
         // <SafeAreaView style={{ flex: 1}}>
-            <View>
-                <Searchbar
-                    placeholder="Search other user..."
-                    onChangeText={(username) => fetchUsers(username)}
-                    />
+            <View style={{}}>
+                <View style={{ flexDirection: "row", width:"100%"}}>
+                    <Searchbar
+                        placeholder="Search other user..."
+                        onChangeText={(username) => {fetchUsers(username),setIsSearching(true)}}
+                        style={{width:"90%"}}
+                        />
+                    {/* <TouchableOpacity>
+                    </TouchableOpacity> */}
+
+                    <Button icon="cancel" mode="contained" onPress={() => {setIsSearching(false); setSearchQuery(''); Keyboard.dismiss()}}>
+                    </Button>
+                </View>
                 {/* <ScrollView style={styles.scrollView}> */}
                 <FlatList style={styles.FlatList}
+                        style={{display: isSearching ? 'flex' : 'none'}}
                         numColumns={1}
                         horizontal={false}
                         data={searchQuery}
-                        visible={isFeed}
+                        // visible={isSearching}
                         renderItem={({ item }) => (
                             <TouchableOpacity style={styles.searchitem}
-                            onPress={() => setuid(item.id)}>
+                            onPress={() => {setuid(item.id); setIsFeed(false); setIsSearching(false)}}>
                                 <Text>{item.name}</Text>
                             </TouchableOpacity>
                         )}
                         />
                 <View style={{display: isFeed ? 'flex' : 'none'}}>
-                        {
-                            defaultFeedUsers.map((u, i) => {
-                                // {console.log("&",defaultFeedPosts,"&")}
-                                // {console.log("*",defaultFeedPosts.image,"*")}
-                                {console.log("-----------------------------------")}
-                                {console.log(u,i)}
-                                return (
-                                <Card key={i}>
-                                    <Card.Title>{u.name}</Card.Title>
-                                    <Card.Divider/>
-                                    <View  style={styles.user}>
-                                    <Image
-                                        style={styles.image}
-                                        resizeMode="cover"
-                                        source={{ uri: getValues(u.id).urls }}
-                                        />
-                                    {/* <Text style={styles.name}>{defaultFeedPosts.item[i]}</Text> */}
-                                    </View>
-                                </Card>
-                                );
-                            })
-                        }
+                    <ScrollView style={{display: isFeed ? 'flex' : 'none', marginBottom: 50}}>
+                            {
+                                defaultFeedPosts.map((u, i) => {
+                                    return (
+                                        <Card key={i} style={styles.card}>
+                                        {/* <Card.Title title="Card Title" subtitle="Card Subtitle" /> */}
+                                        <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(u.creation)} />
+                                        <Card.Content>
+                                            {/* <Title>{defaultFeedUsers[i].name}</Title> */}
+                                            <Paragraph style={styles.cardText}>{u.caption}</Paragraph>
+                                        </Card.Content>
+                                        <Card.Cover style={styles.image} source={{ uri: u.downloadURL }} />
+                                        <Card.Actions>
+                                            <Button>Like</Button>
+                                            <Button>Dislike</Button>
+                                        </Card.Actions>
+                                    </Card>
+                                    );
+                                })
+                            }
+                    </ScrollView>
                 </View>
 
-                {/* 
-                // implemented without image without header, using ListItem component
-                <Card containerStyle={{padding: 0}} >
-                {
-                    users.map((u, i) => <ListItem key={i} />)
-                }
-                </Card> */}
+            
                 <ScrollView style={styles.containerGallery} style={{display: isFeed ? 'none' : 'flex'}}>
                     <Text style={{fontSize: 35, fontWeight: 'bold', color: '#abcfe4', margin: 20, textAlign: 'center'}}>Your Journey</Text>
                     <FlatList
@@ -289,15 +380,21 @@ export default function diary(props) {
             </View>
 
 
+
     )
 }
 
 const styles = StyleSheet.create({
-    scrollView: {
-        // backgroundColor: 'pink',
-        // marginHorizontal: 20,
-        flex:8
-      },
+    card: {
+        margin: 10,
+        borderRadius: 5,
+    },
+    image: {
+    },
+    cardText: {
+        fontSize: 14,
+        fontWeight: "400"
+    },
     
     searchitem: {
         // flex: 1,
@@ -325,13 +422,6 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         flex: 1/2,
-
-
-    },
-    image: {
-        flex: 1,
-        aspectRatio: 1/1,
-        margin: 2,
     },
     buttonContainer: {
         alignItems: "center",

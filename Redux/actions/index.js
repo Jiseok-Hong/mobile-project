@@ -24,7 +24,6 @@ export function fetchUser(){
     })
 }
 
-
 export function fetchAllUsers(){
     return((dispatch) => {
         firebase.firestore()
@@ -40,6 +39,33 @@ export function fetchAllUsers(){
             })
     })
 }
+
+export function fetchUploadedUsers(){
+    return((dispatch) => {
+        firebase.firestore()
+            .collection("users")
+            .where('numPost', '>', 0)
+            // .doc()
+            .get()
+            .then((snapshot) => {
+                if(snapshot.exists){
+                    let fetched = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        const id = doc.id;
+                        return { id, ...data }
+                    })
+                    dispatch({ type: USERS_DATA_STATE_CHANGE, fetched });
+                    for(let i = 0; i < following.length; i++){
+                        dispatch(fetchUsersData(following[i], true));
+                    }
+                }else{
+                    console.log('does not exist')
+                }
+            })
+    })
+}
+
+
 
 export function fetchUsersData(uid, getPosts) {
     return ((dispatch, getState) => {
