@@ -12,6 +12,11 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import firebase from 'firebase';
 require('firebase/firestore');
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
+
+
 export default function diary(props) {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [defaultFeedUsers, setDefaultFeedUsers] = useState([]);
@@ -21,7 +26,7 @@ export default function diary(props) {
 
     // ! FROM profile.js
     const [userPosts, setUserPosts] = useState([])
-    const [user, setUser] = useState(null)
+    const [user, setUser] = useState('S1H2Ws0coka3BjzUWHOkoEbIE382')
     const [uid, setuid] = useState(null) 
     const [isFeed, setIsFeed] = useState(true)
     const [isSearching, setIsSearching] = useState(false)
@@ -48,14 +53,6 @@ export default function diary(props) {
                    .get()
                    .then((querySnapshot) => {
                        const queryDocumentSnapshot = querySnapshot.docs[0];
-                       // console.log("querySnapshot",queryDocumentSnapshot.id);
-                       // console.log("querySnapshot",queryDocumentSnapshot.data());
-                       // let post = {
-                       //     caption: queryDocumentSnapshot.data().caption,
-                       //     creation: queryDocumentSnapshot.data().creation,
-                       //     image: queryDocumentSnapshot.data().downloadURL
-                       // }
-                       // setDefaultFeedPosts({ id, ...data })
                        return { id, ...queryDocumentSnapshot.data() };
                    });
             return posts;
@@ -63,6 +60,53 @@ export default function diary(props) {
         console.log(feedPosts);
         setDefaultFeedPosts(feedPosts);
         // return feedPosts;
+    }
+
+     async function fetchSignleUserPosts(uid) {
+        console.log("fetchSignleUserPosts")
+
+        const singleUserPosts = await firebase.firestore()
+            .collection("posts")
+            .doc(uid)
+            .collection("userPosts")
+            .orderBy("creation", "asc")
+            .get()
+            .then((snapshot) => {
+                if(snapshot.exists){
+                    let posts = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        const id = doc.id;
+                        return {id, ...data}
+                    })
+                }else{
+                    console.log('does not exist')
+                }
+                
+            }) 
+        // setUserPosts(singleUserPosts);
+        return singleUserPosts;
+        // console.log(feedPosts);
+        // setDefaultFeedPosts(feedPosts);
+    }
+
+    async function fetchSignleUser(uid) {
+        console.log("fetchSignleUser")
+
+         const singleUser = await firebase.firestore()
+        .collection("users")
+        .doc(uid)
+        .get()
+        .then((snapshot) => {
+            if(snapshot.exists){
+                // setUser(snapshot.data());
+                return(snapshot.data());
+            }else{
+                console.log('does not exist')
+            }
+        })
+        return singleUser;
+        // console.log(feedPosts);
+        // setDefaultFeedPosts(feedPosts);
     }
 
     async function fetchUserData() {
@@ -80,6 +124,7 @@ export default function diary(props) {
                 const data = doc.data();
                 const id = doc.id;
                 return { id, ...data }
+                // return { id, ...data }
             }); 
             // let searchResult = snapshot.docs.map(doc => { doc.id, ...doc.data()} )
             // setIsFeed(true);
@@ -178,10 +223,20 @@ export default function diary(props) {
         }
     },[defaultFeedUsers])
 
+    useEffect( () => {
+        try {
+            const feedPosts = fetchUserPosts();
+            console.log(feedPosts);
+        } catch (e) {
+            console.error(e);
+        }
+    },[user])
+
     useEffect(() => {
-        console.log("-----------------------------------\ndefaultFeedPosts changed\n-----------------------------------\n")
-        console.log("defaultFeedPosts:",defaultFeedPosts)
-        console.log("defaultFeedUser:",defaultFeedUsers)
+        // console.log("-----------------------------------\ndefaultFeedPosts changed\n-----------------------------------\n")
+        // console.log("isFeed:",isFeed)
+        // console.log("defaultFeedPosts:",defaultFeedPosts)
+        // console.log("defaultFeedUser:",defaultFeedUsers)
 
     },[defaultFeedPosts])
     
@@ -190,40 +245,55 @@ export default function diary(props) {
     useEffect(() => {
         console.log("-----------------------------------\nuseEffect - [uid]\n-----------------------------------\n")
         // console.log("UseEffect[uid]")
-        setIsSearching('false')
-        setIsFeed('false')
+        setIsSearching(false)
+        // setIsFeed(false)
         console.log("isFeed:",isFeed)
+        console.log("uid:",uid)
         // console.log("useEffect - [uid]")
-        const {currentUser, posts, allUsers} = props;
-        if(uid != null){
-            // console.log("original uid:",uid);
-            firebase.firestore()
-                .collection("users")
-                .doc(uid)
-                .get()
-                .then((snapshot) => {
-                    if(snapshot.exists){
-                        setUser(snapshot.data());
-                    }else{
-                        console.log('does not exist')
-                    }
-                })
+        // const {currentUser, posts, allUsers} = props;
+        if(uid){
+            console.log("original uid:",uid);
+            
+            const singleUser = fetchSignleUser(uid);
+            const singleUserPosts = fetchSignleUserPosts(uid);
+            setUser(singleUser);
+            setUserPosts(singleUserPosts);
 
-            firebase.firestore()
-                .collection("posts")
-                .doc(uid)
-                .collection("userPosts")
-                .orderBy("creation", "asc")
-                .get()
-                .then((snapshot) => {
-                    let posts = snapshot.docs.map(doc => {
-                        const data = doc.data();
-                        const id = doc.id;
-                        return {id, ...data}
-                    })
-                    setUserPosts(posts);
-                })
-        } else {
+            // firebase.firestore()
+            //     .collection("users")
+            //     .doc(uid)
+            //     .get()
+            //     .then((snapshot) => {
+            //         if(snapshot.exists){
+            //             setUser(snapshot.data());
+            //         }else{
+            //             console.log('does not exist')
+            //         }
+            //     })
+
+            // firebase.firestore()
+            //     .collection("posts")
+            //     .doc(uid)
+            //     .collection("userPosts")
+            //     .orderBy("creation", "asc")
+            //     .get()
+            //     .then((snapshot) => {
+            //         let posts = snapshot.docs.map(doc => {
+            //             const data = doc.data();
+            //             const id = doc.id;
+            //             return {id, ...data}
+            //         })
+            //         setUserPosts(posts);
+            //     })
+
+            
+            // console.log("**user:",singleUser);
+            // console.log("**userPosts:",singleUserPosts);
+            console.log("***user:",singleUser);
+            console.log("***userPosts:",singleUserPosts);
+            return
+        }
+        if (uid == null) {
             console.log("null for uid");
         }
         
@@ -244,6 +314,11 @@ export default function diary(props) {
                 setSearchQuery(searchResult);
             })
     }
+
+    const handleClick = () => {
+        console.log("-----------------------------------\nhandleClick\n-----------------------------------\n")
+        console.log("button!");
+        }
     
     const fetchUserLastPost = async (uid) => {
         // setIsFeed(false);
@@ -303,31 +378,77 @@ export default function diary(props) {
                 <View style={{ flexDirection: "row", width:"100%"}}>
                     <Searchbar
                         placeholder="Search other user..."
-                        onChangeText={(username) => {fetchUsers(username),setIsSearching(true)}}
+                        onChangeText={(username) => {fetchUsers(username);setIsSearching(true)}}
                         style={{width:"90%"}}
                         />
-                    {/* <TouchableOpacity>
-                    </TouchableOpacity> */}
 
-                    <Button icon="cancel" mode="contained" onPress={() => {setIsSearching(false); setSearchQuery(''); Keyboard.dismiss()}}>
+                    <Button icon="cancel" mode="contained" 
+                        style={{justifyContent:'center', alignItems:'center'}}
+                        onPress={() => {
+                        setIsSearching(false); 
+                        setSearchQuery(''); 
+                        setIsFeed(true);
+                        Keyboard.dismiss();
+                        }}>
                     </Button>
                 </View>
-                {/* <ScrollView style={styles.scrollView}> */}
-                <FlatList style={styles.FlatList}
-                        style={{display: isSearching ? 'flex' : 'none'}}
+
+                <View style={{display: isSearching ? 'flex' : 'none'}}>
+                    <FlatList style={styles.FlatList}
+                            numColumns={1}
+                            horizontal={false}
+                            data={searchQuery}
+                            // visible={isSearching}
+                            keyExtractor={item => item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity style={styles.searchitem}
+                                    onPress={() => {
+                                        console.log("**item id:",item.id);
+                                        // handleClick();
+                                        // setuid(item.id);
+                                        setIsFeed(false); 
+                                        setIsSearching(false);
+                                        }}>
+                                        <Text>{item.name}</Text>
+                                </TouchableOpacity>
+                            )}
+                    />
+                </View>
+
+                <View style={{display: isFeed ? 'none' : 'flex'}}>
+                    <View style={styles.containerGallery}>
+                    <Text style={{fontSize: 28, fontWeight: 'bold', color: '#abcfe4', margin: 20, textAlign: 'center'}}>Your Journey</Text>
+                    <FlatList
                         numColumns={1}
                         horizontal={false}
-                        data={searchQuery}
-                        // visible={isSearching}
+                        data={userPosts}
+                        onPress={()=> {
+                            console.log("single user view:",user)
+                            console.log("single Posts view:",userPosts)
+                        }}
                         renderItem={({ item }) => (
-                            <TouchableOpacity style={styles.searchitem}
-                            onPress={() => {setuid(item.id); setIsFeed(false); setIsSearching(false)}}>
-                                <Text>{item.name}</Text>
-                            </TouchableOpacity>
-                        )}
-                        />
+                        
+                                <Card style={styles.card}>
+                                {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTim(u.creation)} /> */}
+                                    <Card.Cover style={styles.singleimage} source={{ uri: item.downloadURL }} />
+                                    {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(item.creation)} /> */}
+                                    <Card.Content style={styles.singlecardContent}>
+                                        <Paragraph style={styles.cardText}>{item.caption}</Paragraph>
+                                        <View style={{borderRadius:30, backgroundColor:'#b2dad1', paddingHorizontal:"3%",paddingVertical:"1%",marginTop:6, }}>
+                                            <Text>
+                                                <Text style={styles.cardDate}>{timestampToTime(item.creation)}</Text>
+                                            </Text>
+                                        </View>
+                                    </Card.Content>
+                                </Card>
+                            // {/* </View> */}
+                                
+                        )}/>
+                    </View>
+                </View>
+
                 <View style={{display: isFeed ? 'flex' : 'none'}}>
-                    <View style={styles.FlatList} >
+                    <View style={styles.FeedList} >
                         <FlatList
                             numColumns={1}
                             horizontal={false}
@@ -347,38 +468,11 @@ export default function diary(props) {
                                             </View>
                                         </Card.Content>
                                     </Card>
-                                // {/* </View> */}
                             )}/>
                     
                     </View>
                 </View>
-
-
-            
-                <ScrollView style={styles.containerGallery} style={{display: isFeed ? 'none' : 'flex'}}>
-                    <Text style={{fontSize: 35, fontWeight: 'bold', color: '#abcfe4', margin: 20, textAlign: 'center'}}>Your Journey</Text>
-                    <FlatList
-                        // numColumns={2}
-                        horizontal={true}
-                        data={userPosts}
-                        renderItem={({ item }) => (
-                            <View
-                                style={styles.containerImage}>
-                                {/* <Text style={{fontSize: 20}}>{item.downloadURL}</Text> */}
-
-                                <Image
-                                    style={styles.image}
-                                    source={{ uri: item.downloadURL }}
-                                />
-                                
-                            </View>
-                        )}/>
-                </ScrollView>
-                {/* </ScrollView> */}
             </View>
-
-
-
     )
 }
 
@@ -386,10 +480,7 @@ const styles = StyleSheet.create({
     card: {
         margin: 10,
         borderRadius: 5,
-        // justifyContent: 'center',
         justifyContent: 'space-between',
-        // alignItems: 'center',
-        // alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -428,6 +519,27 @@ const styles = StyleSheet.create({
 
     },
 
+    singlecardContent: {
+        // transform: ([{ scale: '0.9' }]),     
+        marginLeft: 5,
+        marginRight: 5,
+        flex: 1,
+        flexWrap:'wrap',
+
+        flexDirection:'row',
+    },
+    singleimage: {
+        flex: 1,
+        height:'1%',
+        aspectRatio: 1/1,
+        marginTop: 10,
+        marginLeft: "auto",
+        // marginLeft: "auto",
+        marginRight: "auto",
+        transform: ([{ scale: '0.9' }]),      
+
+    },
+
     searchitem: {
         // flex: 1,
         padding: '3%',
@@ -437,8 +549,11 @@ const styles = StyleSheet.create({
         marginBottom: '0.2%',
     },
     FlatList: {
-        // margin: 20,
+        // 
+    },
+    FeedList: {
         marginBottom: 100,
+        // marginBottom: 100,
         // borderWidth: 0.1,
         // borderColor: 'red',
         // justifyContent: 'center',
@@ -447,6 +562,7 @@ const styles = StyleSheet.create({
     },
     containerGallery: {
         width: '100%',
+        // height:'50%',
         backgroundColor: '#e6f3f0',
         padding: '5%',
         margin: 10,

@@ -93,7 +93,7 @@ function profile(props) {
                     renderItem={({ item }) => (
                       
                             <Card style={styles.card}>
-                            {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(u.creation)} /> */}
+                            {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTim(u.creation)} /> */}
                                 <Card.Cover style={styles.image} source={{ uri: item.downloadURL }} />
                                 {/* <Card.Title title={defaultFeedUsers[i].name} subtitle={timestampToTime(item.creation)} /> */}
                                 <Card.Content style={styles.cardContent}>
