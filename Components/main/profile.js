@@ -155,7 +155,7 @@ function profile(props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        
+        // flexDirection: 'horizontal',
         padding: '4%',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
 
     },
     buttonContainer: {
-        alignItems: "center",
-        justifyContent: 'flex-end',
+        // alignItems: "center",
+        // justifyContent: 'flex-end',
     },
     button: {
         alignItems: "center",
